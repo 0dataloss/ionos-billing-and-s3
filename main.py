@@ -26,6 +26,8 @@ if os.path.exists("ionos.py"):
   contractio=i.contract
   apiKeyi=i.apikey
   apiSecretKeyi=i.apisecretkey
+  periodio=i.period
+  passwordio=i.password
 else:
   print(f"You can create a configuration file in your home directory\n"
         f"This will make easy to run the script.\n"
@@ -44,11 +46,14 @@ else:
   user_input_contract = input("Please insert contract number\n")
   contract = user_input_contract
 
-user_input_period = input("Insert Period for billing, format YYYY-MM, press enter for current period\n")
-period = user_input_period
-#period="2021-10s"
-user_input_password = getpass()
-#user_input_password = ""
+#user_input_period = input("Insert Period for billing, format YYYY-MM, press enter for current period\n")
+#period = user_input_period
+period=periodio
+if isinstance(passwordio,str):
+  user_input_password=passwordio
+else:
+  user_input_password=getpass()
+
 # End User Input
 
 # Prepare base46 username:password Headers
