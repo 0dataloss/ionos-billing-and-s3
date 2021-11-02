@@ -1,2 +1,4 @@
 # ionos-billing
-python script to extract billing information
+Script to extract the most recent utilisations for:
+All the Virtual DCs
+All the Object Storages
