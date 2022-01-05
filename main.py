@@ -13,7 +13,7 @@ from getpass import getpass
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/metrics')
 def stats():
   cSvPrintadd = ""
   prometheusPagePrintadd = ""
@@ -121,6 +121,11 @@ def stats():
         s3DcUuid=dc
     for a in vdc['meters']:
       meterIdb=a['meterId']
+      typeObj=str(a['type'])
+      resourceUUID=str(a['resourceId'])
+      if resourceUUID == "None":
+          resourceUUID=str(a['id'])
+      serverName=a['name']
       quantityb=a['quantity']
       quantitybUnit=a['quantity']['quantity']
       for price in catalogNotDeprecated:
@@ -131,18 +136,27 @@ def stats():
           grandTotal=(grandTotal+spending)
           if dcName == '':
               dcName="Control_Plane"
-          cSvPrint=dcName,dc,price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],quantitybUnit,spending,price['unitCost']['unit']
+          x=len(serverName)
+          if x != 0:
+            cSvPrint=dcName,dc,typeObj,resourceUUID,serverName,price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],quantitybUnit,spending,price['unitCost']['unit']
+          else:
+            cSvPrint=dcName,dc,typeObj,resourceUUID,price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],quantitybUnit,spending,price['unitCost']['unit']
           cSvPrint=str(cSvPrint)
           cSvPrintadd= cSvPrintadd +"\n"+ cSvPrint.strip("[()]")
           descriptionSanit=price['meterDesc'].strip(")").strip("(")
-          prometheusPagePrint=dcName.replace(" ","_") + "{" + "DCName="+ dcName + ",DCUUID=" + dc + ",Description=" + descriptionSanit.replace(" ","_").replace("+","").replace("(","").replace(")","")+ ",MeterID=" + price['meterId'] +",Quantity=" + str(quantitybUnit) + ",Price=" +str(spending)+"}"
+          if x != 0:
+            prometheusPagePrint=dcName.replace(" ","_") + "{DCName=\""+ dcName + "\",DCUUID=\"" + dc + "\",Type=\"" + typeObj + "\",ResourceUUID=\"" + resourceUUID + "\",ServerName=\"" + serverName + "\",Description=\"" + descriptionSanit.replace(" ","_").replace("+","").replace("(","").replace(")","") + "\",MeterID=\"" + price['meterId'] + "\",Quantity=\"" + str(quantitybUnit) + "\",Price=\"" + str(spending)+ "\"} 0"
+          else:
+            prometheusPagePrint=dcName.replace(" ","_") + "{DCName=\"" + dcName + "\",DCUUID=\"" + dc + "\",Type=\"" + typeObj + "\",ResourceUUID=\"" + resourceUUID + "\",Description=\"" + descriptionSanit.replace(" ","_").replace("+","").replace("(","").replace(")","") + "\",MeterID=\"" + price['meterId'] + "\",Quantity=\"" + str(quantitybUnit) + "\",Price=\"" + str(spending)+ "\"} 0"
+
           prometheusPagePrintadd=prometheusPagePrintadd +"\n"+ prometheusPagePrint
 
   # If CSV requested print CSV
-  ###print(cSvPrintadd)
+  #print(cSvPrintadd)
   # If GranTotal requested print GranTotal
-  ###print("\n\n--------\nGrand Total Compute & Network --> "+ str(grandTotal) +"\n--------")
+  #print("\n\n--------\nGrand Total Compute & Network --> "+ str(grandTotal) +"\n--------")
   # If Prometheus requested print prometheusPage
+  #print(prometheusPagePrintadd)
   return prometheusPagePrintadd
 
 
