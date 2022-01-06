@@ -22,9 +22,7 @@ def stats():
       usernameio = os.getenv('IONOS_USERNAME')
       passwordio = os.getenv('IONOS_PASSWORD')
       contractio = os.getenv('IONOS_CONTRACT')
-      apiKeyi = os.getenv('IONOS_APIKEY')
       periodio = os.getenv('IONOS_PERIOD')
-      apiSecretKeyi = os.getenv('IONOS_APIKEYSECRET')
       runOption = os.getenv('IONOS_RUNTYPE')
   else:
     if os.path.exists("ionos.py"):
@@ -33,10 +31,8 @@ def stats():
       import ionos as i
       usernameio=i.username
       contractio=i.contract
-      apiKeyi=i.apikey
-      apiSecretKeyi=i.apisecretkey
-      periodio=i.period
       passwordio=i.password
+      periodio=i.period
       runOption=i.runtype
     else:
       print("You can create a configuration file in your home directory\n"
