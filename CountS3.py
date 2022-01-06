@@ -67,31 +67,6 @@ try:
 except:
   print(f"API Key missing, please export it in your env with 'export IONOS_APIKEYSECRET=<apiSecretKeyi>'\nOr set up the file ionos.py")
 
-# Prepare base46 username:password Headers
-user_input_usernameandpassword=str(user_input_username+":"+user_input_password)
-message_bytes = user_input_usernameandpassword.encode('ascii')
-base64_bytes = base64.b64encode(message_bytes)
-token = base64_bytes.decode('ascii')
-contract=contract
-authAcc={"Authorization": "Basic "+token+""}
-
-# Buld a catalog for all the products with ID, the price per unit, and the unit
-def catalog(authHead,contract):
-  url = "https://api.ionos.com/billing/"+ contract +"/products"
-  response = requests.get(url, headers=authHead)
-  catalogRp = (response.json())
-  # only return the products with deprected = False
-  catalogRpOnlyFalse = []
-  catalogProducts = catalogRp['products']
-  # Build a new list of Dict from previous Dict for only services Not Deprecated
-  for item in catalogProducts:
-    if item['deprecated'] is False:
-      catalogRpOnlyFalse.append(item)
-  return catalogRpOnlyFalse
-
-# Start Building the Catalog
-catalogNotDeprecated=catalog(authAcc,contract)
-
 ##
 # Create S3 Objects
 ##
@@ -107,7 +82,7 @@ s3resource = boto3.resource('s3',
 )
 totalSizeByte = 0
 buckets = s3client.list_buckets()
-print(f"{buckets}")
+print(f"# Bucket Details\n#--------------------")
 for bucket in buckets['Buckets']:
   s3sizeByte=0
   bucket42 = s3resource.Bucket(bucket['Name'])
@@ -132,22 +107,14 @@ for bucket in buckets['Buckets']:
       endpoint_url='https://s3-de-central.profitbricks.com'
     )
     bucket42 = s3resource.Bucket(bucket['Name'])
+  c0 = 0
   for s3_file in bucket42.objects.all():
-    s3sizeByte = s3sizeByte + s3_file.size
+     s3sizeByte = s3sizeByte + s3_file.size
+     c0 = c0 + 1
   bucketSize = s3sizeByte / 1024 / 1024 / 1024
-  print(f"{bucket42.name}:{bucketSize}")
+  print(f"Size of {bucket42.name}: {bucketSize} GB\nFiles contained in {bucket42.name}:{c0}\n#--------------------")
+
   totalSizeByte = (totalSizeByte + s3sizeByte)
   s3sizeByte = s3sizeByte / 1024 / 1024 / 1024
 totalSizeByte=totalSizeByte/1024/1024/1024
-productId = "S3SU1100"
-for price in catalogNotDeprecated:
-    if price['meterId'] == productId:
-      unitCost=float(price['unitCost']['quantity'])
-      consumedUnit=float(totalSizeByte)
-      spending=(totalSizeByte*unitCost)
-
-#      cSvPrint="S3",s3DcUuid,price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],totalSizeByte,spending,price['unitCost']['unit']
-      cSvPrint="S3",price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],totalSizeByte,spending,price['unitCost']['unit']
-      cSvPrint = str(cSvPrint)
-      cSvPrintadd = cSvPrint.strip("[()]")+cSvPrintadd
-print(cSvPrintadd)
+print(f"Total Size:{totalSizeByte} GB")
