@@ -1,5 +1,4 @@
 #!/bin/python3
-import socket
 import sys
 import requests
 import json
@@ -7,16 +6,14 @@ import datetime
 import base64
 import os
 from flask import Flask
-from botocore.client import Config
 from getpass import getpass
 
-
+runOption = os.getenv('IONOS_RUNTYPE')
 app = Flask(__name__)
 
-@app.route('/metrics')
 def stats():
   cSvPrintadd = ""
-  prometheusPagePrintadd = ""
+  prometheusPagePrintadd="# This script is interrogating IONOS Billing API\n# Each metric is a Price tagged with all the most relevant information"
 
   # Read Env Variables
   if os.getenv('IONOS_USERNAME'):
@@ -28,6 +25,7 @@ def stats():
       apiKeyi = os.getenv('IONOS_APIKEY')
       periodio = os.getenv('IONOS_PERIOD')
       apiSecretKeyi = os.getenv('IONOS_APIKEYSECRET')
+      runOption = os.getenv('IONOS_RUNTYPE')
   else:
     if os.path.exists("ionos.py"):
       # File Exist so  Import .ionos.cfg
@@ -39,6 +37,7 @@ def stats():
       apiSecretKeyi=i.apisecretkey
       periodio=i.period
       passwordio=i.password
+      runOption=i.runtype
     else:
       print("You can create a configuration file in your home directory\n"
       "This will make easy to run the script.\n"
@@ -68,7 +67,10 @@ def stats():
       user_input_password=passwordio
   except:
     user_input_password=getpass()
-
+  try:
+      runOption
+  except:
+    runOption="CSV"
   # End User Input
 
   # Prepare base46 username:password Headers
@@ -145,21 +147,38 @@ def stats():
           cSvPrintadd= cSvPrintadd +"\n"+ cSvPrint.strip("[()]")
           descriptionSanit=price['meterDesc'].strip(")").strip("(")
           if x != 0:
-            prometheusPagePrint=dcName.replace(" ","_") + "{DCName=\""+ dcName + "\",DCUUID=\"" + dc + "\",Type=\"" + typeObj + "\",ResourceUUID=\"" + resourceUUID + "\",ServerName=\"" + serverName + "\",Description=\"" + descriptionSanit.replace(" ","_").replace("+","").replace("(","").replace(")","") + "\",MeterID=\"" + price['meterId'] + "\",Quantity=\"" + str(quantitybUnit) + "\",Price=\"" + str(spending)+ "\"} 0"
+            prometheusPagePrint="Price{DCName=\""+ dcName.replace(" ","_") + "\",DCUUID=\"" + dc + "\",Type=\"" + typeObj + "\",ResourceUUID=\"" + resourceUUID + "\",ServerName=\"" + serverName + "\",Description=\"" + descriptionSanit.replace(" ","_").replace("+","").replace("(","").replace(")","") + "\",MeterID=\"" + price['meterId'] + "\",Quantity=\"" + str(quantitybUnit) + "\"}" + str(spending)
           else:
-            prometheusPagePrint=dcName.replace(" ","_") + "{DCName=\"" + dcName + "\",DCUUID=\"" + dc + "\",Type=\"" + typeObj + "\",ResourceUUID=\"" + resourceUUID + "\",Description=\"" + descriptionSanit.replace(" ","_").replace("+","").replace("(","").replace(")","") + "\",MeterID=\"" + price['meterId'] + "\",Quantity=\"" + str(quantitybUnit) + "\",Price=\"" + str(spending)+ "\"} 0"
+            prometheusPagePrint="Price{DCName=\""+ dcName.replace(" ","_") + "\",DCUUID=\"" + dc + "\",Type=\"" + typeObj + "\",ResourceUUID=\"" + resourceUUID + "\",Description=\"" + descriptionSanit.replace(" ","_").replace("+","").replace("(","").replace(")","") + "\",MeterID=\"" + price['meterId'] + "\",Quantity=\"" + str(quantitybUnit) + "\"}" + str(spending)
 
           prometheusPagePrintadd=prometheusPagePrintadd +"\n"+ prometheusPagePrint
 
-  # If CSV requested print CSV
-  #print(cSvPrintadd)
-  # If GranTotal requested print GranTotal
-  #print("\n\n--------\nGrand Total Compute & Network --> "+ str(grandTotal) +"\n--------")
-  # If Prometheus requested print prometheusPage
-  #print(prometheusPagePrintadd)
-  return prometheusPagePrintadd
+  if runOption == "CSV":
+    # If CSV requested print CSV
+    print(f"{cSvPrintadd}")
 
+  elif runOption == "TOTAL":
+    # If GranTotal requested print GranTotal
+    print(f"\n\n--------\nGrand Total Compute & Network :"+ str(grandTotal) +"\n--------")
 
+  elif runOption == "PROMETHEUS":
+    # If Prometheus is what is needed then start server and return results
+    return prometheusPagePrintadd
 
-if __name__ == '__main__':
-    app.run()
+try:
+  runOption
+  if runOption == "PROMETHEUS":
+    @app.route('/metrics')
+    def test():
+      return(stats())
+
+    if __name__ == '__main__':
+      app.run()
+  elif runOption == "CSV":
+    stats()
+  elif runOption == "TOTAL":
+    stats()
+  else:
+    print(f"ERROR!!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
+except:
+    print(f"IONOS_RUNTYPE env variable not set!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
