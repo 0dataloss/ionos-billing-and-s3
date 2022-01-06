@@ -140,7 +140,7 @@ def stats():
           else:
             cSvPrint=dcName,dc,typeObj,resourceUUID,price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],quantitybUnit,spending,price['unitCost']['unit']
           cSvPrint=str(cSvPrint)
-          cSvPrintadd= cSvPrintadd +"\n"+ cSvPrint.strip("[()]")
+          cSvPrintadd= cSvPrintadd +"\n"+ cSvPrint.strip("[()]").replace("'","").replace(", ",",")
           descriptionSanit=price['meterDesc'].strip(")").strip("(")
           if x != 0:
             prometheusPagePrint="Price{DCName=\""+ dcName.replace(" ","_") + "\",DCUUID=\"" + dc + "\",Type=\"" + typeObj + "\",ResourceUUID=\"" + resourceUUID + "\",ServerName=\"" + serverName + "\",Description=\"" + descriptionSanit.replace(" ","_").replace("+","").replace("(","").replace(")","") + "\",MeterID=\"" + price['meterId'] + "\",Quantity=\"" + str(quantitybUnit) + "\"}" + str(spending)
