@@ -13,17 +13,11 @@ from getpass import getpass
 config = Config(connect_timeout=1, read_timeout=1, retries={'max_attempts': 0})
 s3 = boto3.client('s3', config=config)
 
-#i=""
-#usernameio=1
-#contractio=1
-cSvPrintadd = ""
-
+ionos_access_key_id = ""
+ionos_secret_access_key = ""
 # Read Env Variables
 if os.getenv('IONOS_APIKEY'):
   if os.getenv('IONOS_APIKEYSECRET'):
-    usernameio = os.getenv('IONOS_USERNAME')
-    passwordio = os.getenv('IONOS_PASSWORD')
-    contractio = os.getenv('IONOS_CONTRACT')
     apiKeyi = os.getenv('IONOS_APIKEY')
     apiSecretKeyi = os.getenv('IONOS_APIKEYSECRET')
 else:
@@ -31,53 +25,28 @@ else:
     # File Exist so  Import .ionos.cfg
     sys.path.append("ionos")
     import ionos as i
-    usernameio=i.username
-    contractio=i.contract
-    passwordio=i.password
     apiKeyi=i.apikey
     apiSecretKeyi=i.apisecretkey
   else:
-    print(f"You can create a configuration file in your home directory\n"
-    f"This will make easy to run the script.\n"
-    f"Create the file ionos.py in this same directory with content:\n\n")
-
-# check if Key and secret Key have values
-try:
-  usernameio
-  user_input_username = usernameio
-except:
-  user_input_username = input("Please insert username\n")
-try:
-  isinstance
-  contract = contractio
-except:
-  user_input_contract = input("Please insert contract number\n")
-  contract = user_input_contract
-try:
-  isinstance
-  user_input_password=passwordio
-except:
-  user_input_password=getpass()
-try:
-  apiKeyi
-except:
-  print(f"API Key missing, please export it in your env with 'export IONOS_APIKEY=<apikey>'\nOr set up the file ionos.py")
-try:
-  apiSecretKeyi
-except:
-  print(f"API Key missing, please export it in your env with 'export IONOS_APIKEYSECRET=<apiSecretKeyi>'\nOr set up the file ionos.py")
+    print(f"No credentials found...\n"
+    f"Before running the program export as environment variables IONOS_APIKEY=<your api key> and\n"
+    f"IONOS_APIKEYSECRET=<your api secret key\n"
+    f"Or, create the file ionos.py in this same directory with content:\n\n"
+    f"apikey=<your api key>"
+    f"apisecretkey=<your api secret key>")
+    sys.exit(1)
 
 ##
 # Create S3 Objects
 ##
 s3client = boto3.client('s3',
-    aws_access_key_id=apiKeyi,
-    aws_secret_access_key=apiSecretKeyi,
+    ionos_access_key_id=apiKeyi,
+    ionos_secret_access_key=apiSecretKeyi,
     endpoint_url='https://s3-de-central.profitbricks.com'
 )
 s3resource = boto3.resource('s3',
-    aws_access_key_id=apiKeyi,
-    aws_secret_access_key=apiSecretKeyi,
+    ionos_access_key_id=apiKeyi,
+    ionos_secret_access_key=apiSecretKeyi,
     endpoint_url='https://s3-de-central.profitbricks.com'
 )
 totalSizeByte = 0
@@ -95,15 +64,15 @@ for bucket in buckets['Buckets']:
     secondlevel=realurl[1]
     endpointurl="https://"+ secondlevel
     s3resource = boto3.resource('s3',
-      aws_access_key_id=apiKeyi,
-      aws_secret_access_key=apiSecretKeyi,
+      ionos_access_key_id=apiKeyi,
+      ionos_secret_access_key=apiSecretKeyi,
       endpoint_url="https://"+ secondlevel
     )
     bucket42 = s3resource.Bucket(bucket['Name'])
   else:
     s3resource = boto3.resource('s3',
-      aws_access_key_id=apiKeyi,
-      aws_secret_access_key=apiSecretKeyi,
+      ionos_access_key_id=apiKeyi,
+      ionos_secret_access_key=apiSecretKeyi,
       endpoint_url='https://s3-de-central.profitbricks.com'
     )
     bucket42 = s3resource.Bucket(bucket['Name'])
