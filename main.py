@@ -66,7 +66,7 @@ def stats():
   try:
       runOption
   except:
-    runOption="CSV"
+    runOption="TOTAL"
   # End User Input
 
   # Prepare base46 username:password Headers
@@ -136,7 +136,7 @@ def stats():
               dcName="Control_Plane"
           x=len(serverName)
           if x != 0:
-            cSvPrint=dcName,dc,typeObj,resourceUUID,serverName,price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],quantitybUnit,spending,price['unitCost']['unit']
+            cSvPrint=dcName,dc,typeObj,resourceUUID,price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],quantitybUnit,spending,price['unitCost']['unit'],serverName
           else:
             cSvPrint=dcName,dc,typeObj,resourceUUID,price['meterDesc'],price['meterId'],price['unitCost']['quantity'],price['unitCost']['unit'],quantitybUnit,spending,price['unitCost']['unit']
           cSvPrint=str(cSvPrint)
