@@ -1,7 +1,6 @@
 #!/bin/python3
 import sys
 import requests
-import json
 import datetime
 import base64
 import os
