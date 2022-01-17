@@ -1,4 +1,6 @@
 #!/bin/python3
+from ast import IsNot
+from contextlib import nullcontext
 import sys
 import requests
 import datetime
@@ -7,66 +9,39 @@ import os
 from flask import Flask
 from getpass import getpass
 
+usernameio = os.getenv('IONOS_USERNAME')
+try:
+  usernameio.isascii
+except:
+  print("Missing Username -> IONOS_USERNAME\n")
+  sys.exit(1)
+passwordio = os.getenv('IONOS_PASSWORD')
+try:
+  passwordio.isascii
+except:
+  print("Missing Password -> IONOS_PASSWORD\n")
+  sys.exit(1)
+contractio = os.getenv('IONOS_CONTRACT')
+try:
+  contractio.isascii
+except:
+  print("Missing Contract Number -> IONOS_CONTRACT\n")
+  sys.exit(1)
 runOption = os.getenv('IONOS_RUNTYPE')
+containerIo = os.getenv('IONOS_CONTAINER')
+runOption = os.getenv('IONOS_RUNTYPE')
+yAndM = datetime.datetime.now().strftime('%Y-%m')
 app = Flask(__name__)
 
-def stats():
+def stats(usernameio,passwordio,contractio,runOption):
+  user_input_username = usernameio
+  user_input_password=passwordio
+  contract = str(contractio)
   cSvPrintadd = ""
   prometheusPagePrintadd="# This script is interrogating IONOS Billing API\n# Each metric is a Price tagged with all the most relevant information"
-
-  # Read Env Variables
-  if os.getenv('IONOS_USERNAME'):
-    if os.getenv('IONOS_PASSWORD'):
-      yAndM = datetime.datetime.now().strftime('%Y-%m')
-      usernameio = os.getenv('IONOS_USERNAME')
-      passwordio = os.getenv('IONOS_PASSWORD')
-      contractio = os.getenv('IONOS_CONTRACT')
-      periodio = os.getenv('IONOS_PERIOD')
-      runOption = os.getenv('IONOS_RUNTYPE')
-  else:
-    if os.path.exists("ionos.py"):
-      # File Exist so  Import .ionos.cfg
-      sys.path.append("ionos")
-      import ionos as i
-      usernameio=i.username
-      contractio=i.contract
-      passwordio=i.password
-      periodio=i.period
-      runOption=i.runtype
-    else:
-      print("You can create a configuration file in your home directory\n"
-      "This will make easy to run the script.\n"
-      "Create the file ionos.py in this same directory with content:\n\n"
-      "username=\"<replace with your username>\"\n"
-      "contract=\"<replace with your contract number>\"\n\n")
-
-  # If there is no file or no variables I am requesting User Inputs
-  try:
-      usernameio
-      user_input_username = usernameio
-  except:
-    user_input_username = input("Please insert username\n")
-  try:
-      isinstance
-      contract = contractio
-  except:
-    user_input_contract = input("Please insert contract number\n")
-    contract = user_input_contract
-  try:
-      periodio
-      period = periodio
-  except:
-      periodio = yAndM
-  try:
-      isinstance
-      user_input_password=passwordio
-  except:
-    user_input_password=getpass()
-  try:
-      runOption
-  except:
-    runOption="TOTAL"
-  # End User Input
+  yAndM = datetime.datetime.now().strftime('%Y-%m')
+  # Period is always the current Billing Month
+  period = str(yAndM)
 
   # Prepare base46 username:password Headers
   user_input_usernameandpassword=str(user_input_username+":"+user_input_password)
@@ -160,20 +135,29 @@ def stats():
     # If Prometheus is what is needed then start server and return results
     return prometheusPagePrintadd
 
+# It is just temporary till I sort out the 3 endpoints
+if containerIo == "YES":
+  runOption="PROMETHEUS"
 try:
   runOption
   if runOption == "PROMETHEUS":
     @app.route('/metrics')
     def test():
-      return(stats())
+      return(stats(usernameio,passwordio,contractio,runOption))
 
     if __name__ == '__main__':
-      app.run()
+      if containerIo == "YES":
+        app.run(host="0.0.0.0")
+      else:
+        app.run()
   elif runOption == "CSV":
-    stats()
+    stats(usernameio,passwordio,contractio,runOption)
   elif runOption == "TOTAL":
-    stats()
+    stats(usernameio,passwordio,contractio,runOption)
   else:
     print(f"ERROR!!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
+    sys.exit(1)
 except:
+    print(runOption)
     print(f"IONOS_RUNTYPE env variable not set!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
+    sys.exit(1)
