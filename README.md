@@ -17,7 +17,7 @@ Stats can be generated in CSV format, PROMETHEUS (including a basic http metric 
 
 Billing.py is a Python3 program which can be run on any linux environment.
 It is designed primarily to export metrics for Prometheus but CSV format and a 1 line string with the total are also options for the output.
-Will track all your resources as the billing system of IONOS does, tagging every signle price wit a variety of information which are going to 
+Will track all your resources as the billing system of IONOS does, tagging every single price with a variety of information which are going to 
 help you design really granular graphs with Grafana.
 
 As IONOS Billing api does not track S3 in real time, I have put together ObjS3stats.py which is still written in Python3 and will track the number
