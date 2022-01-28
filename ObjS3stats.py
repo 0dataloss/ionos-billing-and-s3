@@ -9,6 +9,25 @@ from botocore.client import Config
 config = Config(connect_timeout=1, read_timeout=1, retries={'max_attempts': 0})
 s3 = boto3.client('s3', config=config)
 runOption = os.getenv('IONOS_RUNTYPE')
+apiKeyi = os.getenv('IONOS_APIKEY')
+apiSecretKeyi = os.getenv('IONOS_APIKEYSECRET')
+
+try:
+  runOption
+except:
+  print(f"Please make sure IONOS_RUNTYPE is an Environment Variable")
+  sys.exit(1)
+try:
+  apiKeyi
+except:
+  print(f"Please make sure IONOS_APIKEY is an Environment Variable")
+  sys.exit(1)
+try:
+  apiSecretKeyi
+except:
+  print(f"Please make sure IONOS_APIKEYSECRET is an Environment Variable")
+  sys.exit(1)
+
 app = Flask(__name__)
 
 def stats():
@@ -17,27 +36,9 @@ def stats():
   prometheusStats = ""
 
   # Read Env Variables
-  if os.getenv('IONOS_APIKEY'):
-    if os.getenv('IONOS_APIKEYSECRET'):
-      apiKeyi = os.getenv('IONOS_APIKEY')
-      apiSecretKeyi = os.getenv('IONOS_APIKEYSECRET')
-      runOption = os.getenv('IONOS_RUNTYPE')
-  else:
-    if os.path.exists("ionos.py"):
-      # File Exist so  Import .ionos.cfg
-      sys.path.append("ionos")
-      import ionos as i
-      apiKeyi=i.apikey
-      apiSecretKeyi=i.apisecretkey
-      runOption=i.runtype
-    else:
-      print(f"No credentials found...\n"
-      f"Before running the program export as environment variables IONOS_APIKEY=<your api key> and\n"
-      f"IONOS_APIKEYSECRET=<your api secret key\n"
-      f"Or, create the file ionos.py in this same directory with content:\n\n"
-      f"apikey=<your api key>"
-      f"apisecretkey=<your api secret key>")
-      sys.exit(1)
+  apiKeyi = os.getenv('IONOS_APIKEY')
+  apiSecretKeyi = os.getenv('IONOS_APIKEYSECRET')
+  runOption = os.getenv('IONOS_RUNTYPE')
   
   try:
     runOption
