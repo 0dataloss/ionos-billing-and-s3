@@ -29,22 +29,10 @@ except:
   sys.exit(1)
 
 app = Flask(__name__)
-
-def stats():
+def stats(apiKeyi,apiSecretKeyi,runOption):
   aws_access_key_id = ""
   aws_secret_access_key = ""
   prometheusStats = ""
-
-  # Read Env Variables
-  apiKeyi = os.getenv('IONOS_APIKEY')
-  apiSecretKeyi = os.getenv('IONOS_APIKEYSECRET')
-  runOption = os.getenv('IONOS_RUNTYPE')
-  
-  try:
-    runOption
-  except:
-    runOption="TOTAL"
-  
   ##
   # Create S3 Objects
   ##
@@ -112,20 +100,16 @@ def stats():
   elif runOption == "PROMETHEUS":
     return prometheusStats
 
+print(f"PRIMA DELLA FUNZIONE {runOption}")
 try:
   runOption
+  print(f"IF RUNOPTION EXSIST {runOption}")
   if runOption == "PROMETHEUS":
     @app.route('/metrics')
     def test():
-      return(stats())
+      return(stats(apiKeyi,apiSecretKeyi,runOption))
 
     if __name__ == '__main__':
       app.run()
-  elif runOption == "CSV":
-    stats()
-  elif runOption == "TOTAL":
-    stats()
-  else:
-    print(f"ERROR!!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
 except:
     print(f"IONOS_RUNTYPE env variable not set!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
