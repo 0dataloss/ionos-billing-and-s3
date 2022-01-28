@@ -11,6 +11,8 @@ s3 = boto3.client('s3', config=config)
 runOption = os.getenv('IONOS_RUNTYPE')
 apiKeyi = os.getenv('IONOS_APIKEY')
 apiSecretKeyi = os.getenv('IONOS_APIKEYSECRET')
+containerIo = os.getenv('IONOS_CONTAINER')
+
 
 try:
   runOption
@@ -101,6 +103,9 @@ def stats(apiKeyi,apiSecretKeyi,runOption):
     return prometheusStats
 
 print(f"PRIMA DELLA FUNZIONE {runOption}")
+# It is just temporary till I sort out the 3 endpoints
+if containerIo == "YES":
+  runOption="PROMETHEUS"
 try:
   runOption
   print(f"IF RUNOPTION EXSIST {runOption}")
@@ -110,6 +115,16 @@ try:
       return(stats(apiKeyi,apiSecretKeyi,runOption))
 
     if __name__ == '__main__':
-      app.run()
+      if containerIo == "YES":
+        app.run(host="0.0.0.0")
+      else:
+        app.run()
+  elif runOption == "CSV":
+    stats(apiKeyi,apiSecretKeyi,runOption)
+  elif runOption == "TOTAL":
+    stats(apiKeyi,apiSecretKeyi,runOption)
+  else:
+    print(f"ERROR!!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
+    sys.exit(1)
 except:
     print(f"IONOS_RUNTYPE env variable not set!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
