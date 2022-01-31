@@ -43,7 +43,7 @@ def stats(apiKeyi,apiSecretKeyi,runOption):
 # Vars Init
   prometheusStats = ""
   totalSizeGB = 0
-  totalPrice=0
+  totalPrice = 0
 ##
 # Create S3 Objects
 ##
@@ -68,7 +68,8 @@ def stats(apiKeyi,apiSecretKeyi,runOption):
     bucket42 = s3resource.Bucket(bucket['Name'])
     urlBucket = "https://"+ bucket['Name'] + ".s3-de-central.profitbricks.com"
     resUrlBucket = requests.get(urlBucket, allow_redirects=False)
-# At today the redirect is broken so this is necessary to avoid loops
+
+# At today the redirect in the response is broken so this passage is necessary to avoid loops
 # and to do not break away from https I am parsing the response and rebuild the Endpoint
     if resUrlBucket.is_redirect is True:
       nospliturl=(resUrlBucket.headers['Location'])
