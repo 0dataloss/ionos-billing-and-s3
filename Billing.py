@@ -1,6 +1,4 @@
 #!/bin/python3
-from ast import IsNot
-from contextlib import nullcontext
 import sys
 import requests
 import datetime
