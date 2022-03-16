@@ -33,7 +33,22 @@ ObjS3stats.py has been tested up to 2500 files for single container.
 
 ## Configuration
 
-To use the scrips is recommended to export your IONOS credential for the admin user, as environment variables:
+To use the scrips is necessary to pass information like username/password and contract number.
+To do that securely we recommend to create a protected file named 'ionos.py' in the same directory as teh script with the content as follow:
+```
+runtype="CSV"    # Acceptable paramenters: TOTAL, CSV, PROMETHEUS
+# Billing Config
+username="Your@user.name"
+contract="Contract Number"
+password="Your Password"
+period="2022-02" # This can be left blank for 'Latest'
+
+# Object Storage Config
+apiKeyi="Object Storage API KEY"
+apiSecretKeyi="Object Storage Secret Key"
+```
+
+A second method is to export your IONOS credential for the admin user, as environment variables:
 For Billing.py
 ```
 export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_PERIOD="YYYY-MM" && export IONOS_RUNTYPE=[TOTAL, CSV, PROMETHEUS]
@@ -43,31 +58,7 @@ For ObjS3stats.py
 export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=[TOTAL, CSV, PROMETHEUS]
 ```
 or
-Is possible to specify username and password inside the file itself (recommended ONLY for dev purposes)
-```
-username="username"
-password="password"
-contract=contract_number
-# Period represent year and month you want to receive data for
-# if you are running this to get the current billing stats, leave it blank
-period="YYYY-MM"
-# This option will make the script to run as basic http server
-# exposing /metrics page in Prometheus format
-# runtype=PROMETHEUS 
-# This option will make the script to run once and print in STDOUT
-# all the billing's metrics in CSV format
-# runtype=CSV 
-# This option will make the script to run once and will print 
-# a single line containing the total amount of money forecasted
-# in spending at today
-# runtype=TOTAL
-runtype=
-# apikey and apisecretkey are your Object Storage credentials
-# Only needed for the ObjS3stats.py script
-apikey=
-apisecretkey=
-```
-or
+
 If none of the two options above have been set-up:
 - ObjS3stats.py will fail with error (exit code 1)
 - Billing.py will request user input
@@ -78,13 +69,13 @@ are working as expected in terms of accessing resources
 
 Billing.py
 ```
-$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_PERIOD="YYYY-MM" && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=TOTAL ; Billing.py
+$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_PERIOD="YYYY-MM" && export IONOS_RUNTYPE=TOTAL ; Billing.py
 
 --------
 Grand Total Compute & Network :74.82126276412268
 --------
 
-$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_PERIOD="YYYY-MM" && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=CSV ; Billing.py
+$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_PERIOD="YYYY-MM" && export IONOS_RUNTYPE=CSV ; Billing.py
 
 [...]
 Cloud_Control_Plane,662befd5-3063-4b38-be3d-21f4e9a981d3,TRAFFIC,67a1baf2-e9b2-4515-916f-4f3ca694e7d2,1GB traffic inbound,TI1000,0,GBP,0.0005506686866283417,0.0,GBP
@@ -92,7 +83,7 @@ Cloud_Control_Plane,662befd5-3063-4b38-be3d-21f4e9a981d3,TRAFFIC,0d653255-c450-4
 Cloud_Control_Plane,662befd5-3063-4b38-be3d-21f4e9a981d3,TRAFFIC,0d653255-c450-406a-974f-e1a50809f401,1GB traffic inbound,TI1000,0,GBP,0.003911620005965233,0.0,GBP
 [...]
 
-$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_PERIOD="YYYY-MM" && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=PROMETHEUS ; Billing.py
+$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_PERIOD="YYYY-MM" && export IONOS_RUNTYPE=PROMETHEUS ; Billing.py
  * Serving Flask app 'Billing' (lazy loading)
  * Environment: production
    WARNING: This is a development server. Do not use it in a production deployment.
@@ -107,7 +98,7 @@ Price{DCName="Cloud_Control_Plane",DCUUID="662befd5-3063-4b38-be3d-21f4e9a981d3"
 
 ObjS3stats.py
 ```
-$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_PERIOD="YYYY-MM" && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=TOTAL ; ObjS3stats.py
+$ export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=TOTAL ; ObjS3stats.py
 
 # Bucket Details
 #--------------------
@@ -119,7 +110,7 @@ Files contained in corposoes:946
 #--------------------
 Total Size:17.40185546875 GB
 
-$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_PERIOD="YYYY-MM" && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=CSV ; ObjS3stats.py
+$ export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=CSV ; ObjS3stats.py
 
 [...]
 Bucket_Name,Size_in_GB,Number_Of_Files
@@ -127,7 +118,7 @@ corposo,12.86932373046875,2686
 corposoes,4.53253173828125,946
 [...]
 
-$ export IONOS_USERNAME="username" && export IONOS_PASSWORD="password" && export IONOS_CONTRACT=contract_number && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_PERIOD="YYYY-MM" && export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=PROMETHEUS ; ObjS3stats.py
+$ export IONOS_APIKEY=<api key> && export IONOS_APIKEYSECRET=<api secret> && export IONOS_RUNTYPE=PROMETHEUS ; ObjS3stats.py
  * Serving Flask app 'Billing' (lazy loading)
  * Environment: production
    WARNING: This is a development server. Do not use it in a production deployment.

@@ -24,11 +24,11 @@ def stats():
       runOption = os.getenv('IONOS_RUNTYPE')
   else:
     if os.path.exists("ionos.py"):
-      # File Exist so  Import .ionos.cfg
+      # File Exist so  Import .ionos.py
       sys.path.append("ionos")
       import ionos as i
-      apiKeyi=i.apikey
-      apiSecretKeyi=i.apisecretkey
+      apiKeyi=i.apiKeyi
+      apiSecretKeyi=i.apiSecretKeyi
       runOption=i.runtype
     else:
       print(f"No credentials found...\n"
@@ -111,20 +111,26 @@ def stats():
   elif runOption == "PROMETHEUS":
     return prometheusStats
 
-try:
-  runOption
-  if runOption == "PROMETHEUS":
-    @app.route('/metrics')
-    def test():
-      return(stats())
+if os.path.exists("ionos.py"):
+  # File Exist so  Import .ionos.py
+  sys.path.append("ionos")
+  import ionos as i
+  runOption=i.runtype
 
-    if __name__ == '__main__':
-      app.run()
-  elif runOption == "CSV":
-    stats()
-  elif runOption == "TOTAL":
-    stats()
-  else:
-    print(f"ERROR!!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
+try:
+  runOption.isascii
 except:
     print(f"IONOS_RUNTYPE env variable not set!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
+
+if runOption == "PROMETHEUS":
+  @app.route('/metrics')
+  def test():
+    return(stats())
+  if __name__ == '__main__':
+    app.run()
+elif runOption == "CSV":
+  stats()
+elif runOption == "TOTAL":
+  stats()
+else:
+  print(f"ERROR!!\nPlease set IONOS_RUNTYPE as env variable with value CSV or TOTAL or PROMETHEUS")
