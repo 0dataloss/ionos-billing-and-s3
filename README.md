@@ -26,8 +26,12 @@ ObjS3stats.py is also able to track the containers across multiple regions using
 track the location of a Object Storage container dynamically.
 
 ## Installation
-
-No special install procedure is required, just download the scripts and execute them.
+To run the scripts may be necessary to install some additional modules
+```
+pip --install upgrade pip
+pip install flask requests
+```
+After this it shouldn't be necessary anything else, just download the scripts and execute them.
 Both script have been tested with with Python 3.8
 ObjS3stats.py has been tested up to 2500 files for single container.
 
